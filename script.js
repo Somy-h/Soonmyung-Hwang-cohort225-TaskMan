@@ -116,8 +116,258 @@ class LocalStore {
 
 }
 
-// home tab page:  Collapsed UI for Adding new task
-class AddNewTaskUI {}
+// first tab page
+class TaskListUI {
+  loadTaskItems(tasks) {
+    tasks.forEach((task) => this.addTask(task));
+  }
+  
+  addTask(task) {
+    if (!task) return;
+    this.createTaskItem(task);
+  }
+
+  createTaskItem(task) {
+    // create row
+    const taskTable = document.getElementById('task-table');
+    let row = document.createElement('div');
+    row.classList.add('row');
+    row.classList.add('p-2');
+    row.classList.add('border-bottom');
+    if (task.completed) row.classList.add('completed');
+    row.classList.add('task-row');
+    taskTable?.appendChild(row);
+
+    // create columns
+    this.createColumn(row, ['col-1'], `<a href="#" class="task-completed-check ${task.completed ? "completed" : ""}"><i class="fa-regular fa-circle"></i><i class="fa-solid fa-check"></i></a>`);
+    this.createColumn(row, ['col', 'text-start', 'task'], task.name.trim());
+    this.createColumn(row, ['col-sm-2', 'd-none', 'd-sm-block', 'due-date'], task.dueDate);
+    this.createColumn(row, ['col-1', 'priority'], `<span class="priority-color ${taskPriority[task.priority]}" data-priority-value="${task.priority}"><i class="fa-solid fa-flag"></i></span>`);
+    this.createColumn(row, ['d-none', 'd-lg-block', 'col-lg-2', 'completed-date'], task.completeDate);
+    this.createColumn(row, ['col-2', 'col-md-1'], '<a href="#" class="task-edit"><i class="fa-solid fa-pencil"></i></a> <a href="#" class="task-delete"><i class="fa-solid fa-xmark"></i></a>');
+
+    //row.addEventListener('click', taskItemEventHandler);
+  }
+
+  createColumn(parentRow, classList, innerHtml, defaultEl = null) {
+    let el = (defaultEl) ? document.createElement(defaultEl) : document.createElement('div');
+
+    for (let classItem of classList) {
+        el.classList.add(classItem);
+    }
+    el.innerHTML = innerHtml;
+    parentRow.appendChild(el);
+  }
+
+  toggleCompleted(taskRowEl) {
+    let name = taskRowEl.firstElementChild.nextElementSibling.textContent?.trim();
+    let [task, taskIndex] = taskData.getTask(name);
+    taskRowEl.classList.toggle('completed');
+    if (task) {
+      task.completed =  taskRowEl.classList.contains('completed');
+      let column = this.getCompleteDateColumn(taskRowEl);
+      if(taskRowEl.classList.contains('completed')) {
+        task.completeDate = UtilLib.getToday();
+        column.textContent = task.completeDate;
+      } else {
+        task.completeDate = '';
+        column.textContent = '';
+      }
+      taskData.updateTask(task, taskIndex);
+    }
+  }
+
+  getCompleteDateColumn(taskRowEl) {
+    if (taskRowEl.childElementCount === 6) {
+      if (taskRowEl.children[4].classList.contains('completed-date'))
+        return taskRowEl.children[4];
+    }
+  }
+
+  updateTask(taskRowEl, task) {
+    if (task.completed) {
+      taskRowEl.classList.add('completed');
+    } else {
+      taskRowEl.classList.remove('completed');
+    }
+    //task name
+    let firstChildren = taskRowEl.firstElementChild;
+    firstChildren.nextElementSibling.textContent = task.name;
+    //task due date
+    firstChildren.nextElementSibling.nextElementSibling.textContent = task.dueDate;
+    //task priority
+    let priorityColumn = firstChildren.nextElementSibling.nextElementSibling.nextElementSibling;
+    PriorityUI.setSpanClassList(priorityColumn.firstElementChild, task.priority);
+    priorityColumn.nextElementSibling.textContent = task.completeDate;
+  }
+
+  deleteTask(taskRowEl) {
+    let name = taskRowEl.firstElementChild.nextElementSibling.textContent;
+    if (name && name.trim().length > 0) {
+      taskData.removeTask(name.trim());
+      taskRowEl.remove();
+    }
+  }
+
+  searchTask() {
+    const taskTable = document.getElementById("task-table");
+    let searchText = document.getElementById('search-input').value.trim(); // search input value
+    for (let i = 1; i < taskTable?.childElementCount; i++) {
+      let task = taskTable?.children[i].children[1].textContent.trim(); // task name
+      if (task?.toLowerCase().includes(searchText.toLowerCase())) {
+        taskTable.children[i].hidden = false;
+      } else {
+        taskTable.children[i].hidden = true;
+      }
+    }
+  }
+}
+
+class AddTaskUI {
+
+  static addTaskItem() {
+    if (AddTaskUI.validateAddTask()) {
+        let name = document.getElementById('task-input')?.value.trim();
+        let [existTask, index] = taskData.getTask(name);
+        if (existTask) {
+          const collapseEl = document.getElementById('task-collapse');
+          const refNode = document.querySelector('.new-task-group');
+          Message.showMessage('Existing task. Please enter a different task', collapseEl, refNode);
+          this.clearUI();
+          return;
+        }
+        const task = {
+          name: name,
+          dueDate: document.getElementById('task-dueDate')?.value,
+          priority: document.getElementById('task-priority')?.value,
+          completed: false,
+          completeDate: ''
+        }
+        taskListUI.addTask(task);
+        taskData?.addTask(task);
+        AddTaskUI.clearUI();
+    }
+  }
+
+  static validateAddTask() {
+    let result = true;
+    let taskInput = document.getElementById('task-input');
+    if (!taskInput?.value.trim()) {
+      taskInput?.focus();
+      document.getElementById('task-input-alert')?.classList.remove('visually-hidden');
+      result = false;
+    } else {
+      document.getElementById('task-input-alert')?.classList.add('visually-hidden');
+    }
+    // due date
+    let taskDueDate = document.getElementById('task-dueDate');
+    if (taskDueDate?.value) {
+        document.getElementById('task-dueDate-alert')?.classList.add('visually-hidden');
+    } else {
+      document.getElementById('task-dueDate-alert')?.classList.remove('visually-hidden');
+      result =  false;
+    }
+    return result;
+  }
+
+  static clearUI() {
+        // initialize the Modal dialog after adding
+        document.getElementById('task-input').value = "";
+        document.getElementById('task-dueDate').value = "";
+        
+        //init priority to normal -> span & select
+        //setPrioritySpanClassList(document.getElementById('priority-color'), 2);
+        document.getElementById('task-priority').value = 2;
+        PriorityUI.setClassList('priority-color', 2);
+  }
+  
+}
+
+class EditTaskUI {
+
+  constructor(taskRowEl) {
+    this.row = taskRowEl;
+    this.name = this.row?.firstElementChild.nextElementSibling.textContent?.trim();
+    [this.task, this.taskIndex] = taskData.getTask(this.name);
+  }
+
+  show() {
+    if (this.task) {
+      const editModal = new bootstrap.Modal('#editTaskModal');
+      document.getElementById('task-edit-input').value = this.task.name;
+      document.getElementById('edit-dueDate').value = this.task.dueDate;
+      document.getElementById('edit-priority').value = this.task.priority;
+      PriorityUI.setClassList('edit-priority-color', this.task.priority); 
+      document.getElementById('edit-compDate').value = this.task.completeDate;
+      editModal.show();
+    }
+  }
+
+  updateTask() {
+    if (this.validateUpdateTask()) {
+      let updateName = document.getElementById('task-edit-input')?.value.trim();
+      // if task name has changed, then check existing task name
+      if (this.name !== updateName) {
+        let [existTask, index] = taskData.getTask(updateName);
+        if (existTask) {
+          const collapseEl = document.getElementById('modal-body');
+          const refNode = document.querySelector('.new-task-group');
+          Message.showMessage('Existing task. Please enter a different task', collapseEl, refNode);
+          document.getElementById('task-edit-input').value = this.name;
+          return;
+        }
+      }
+      this.update();
+      this.clearProperties();
+    }
+  }
+
+  validateUpdateTask() {
+    let result = true;
+    let taskInput = document.getElementById('task-edit-input');
+    if (!taskInput?.value.trim()) {
+      taskInput?.focus();
+      document.getElementById('edit-input-alert')?.classList.remove('visually-hidden');
+      result = false;
+    } else {
+      document.getElementById('edit-input-alert')?.classList.add('visually-hidden');
+    }
+    // due date
+    let taskDueDate = document.getElementById('edit-dueDate');
+    if (taskDueDate?.value) {
+        document.getElementById('edit-dueDate-alert')?.classList.add('visually-hidden');
+    } else {
+      document.getElementById('edit-dueDate-alert')?.classList.remove('visually-hidden');
+      result =  false;
+    }
+    return result;
+  }
+
+  update() {
+    // update memory
+    this.task.name = document.getElementById('task-edit-input').value.trim();
+    this.task.dueDate = document.getElementById('edit-dueDate').value;
+    this.task.priority = document.getElementById('edit-priority').value;
+    this.task.completeDate = document.getElementById('edit-compDate').value;
+    if (this.task.completeDate) {
+      this.task.completed = true;
+    } else {
+      this.task.completed = false;
+    }
+    
+    // save to memory & localStorage
+    taskData.updateTask(this.task, this.taskIndex);
+
+    // update task list table
+    taskListUI.updateTask(this.row, this.task);
+  }
+
+  clearProperties() {
+    this.row = null;
+    this.task = null;
+    this.name = '';
+  }
+}
 
 // Second tab page:  Collapsed UI for Adding new weekly task
 class AddWeeklyUI {
@@ -343,114 +593,6 @@ class PriorityUI {
     prioritySpanEl?.classList.add(taskPriority[value]);
   }
 }
-
-////////////////////////////////////////////////////////
-class TaskListUI {
-  loadTaskItems(tasks) {
-    tasks.forEach((task) => this.addTask(task));
-  }
-  
-  addTask(task) {
-    if (!task) return;
-    this.createTaskItem(task);
-  }
-
-  createTaskItem(task) {
-    // create row
-    const taskTable = document.getElementById('task-table');
-    let row = document.createElement('div');
-    row.classList.add('row');
-    row.classList.add('p-2');
-    row.classList.add('border-bottom');
-    if (task.completed) row.classList.add('completed');
-    row.classList.add('task-row');
-    taskTable?.appendChild(row);
-
-    // create columns
-    this.createColumn(row, ['col-1'], `<a href="#" class="task-completed-check ${task.completed ? "completed" : ""}"><i class="fa-regular fa-circle"></i><i class="fa-solid fa-check"></i></a>`);
-    this.createColumn(row, ['col', 'text-start', 'task'], task.name.trim());
-    this.createColumn(row, ['col-sm-2', 'd-none', 'd-sm-block', 'due-date'], task.dueDate);
-    this.createColumn(row, ['col-1', 'priority'], `<span class="priority-color ${taskPriority[task.priority]}" data-priority-value="${task.priority}"><i class="fa-solid fa-flag"></i></span>`);
-    this.createColumn(row, ['d-none', 'd-lg-block', 'col-lg-2', 'completed-date'], task.completeDate);
-    this.createColumn(row, ['col-2', 'col-md-1'], '<a href="#" class="task-edit"><i class="fa-solid fa-pencil"></i></a> <a href="#" class="task-delete"><i class="fa-solid fa-xmark"></i></a>');
-
-    //row.addEventListener('click', taskItemEventHandler);
-  }
-
-  createColumn(parentRow, classList, innerHtml, defaultEl = null) {
-    let el = (defaultEl) ? document.createElement(defaultEl) : document.createElement('div');
-
-    for (let classItem of classList) {
-        el.classList.add(classItem);
-    }
-    el.innerHTML = innerHtml;
-    parentRow.appendChild(el);
-  }
-
-  toggleCompleted(taskRowEl) {
-    let name = taskRowEl.firstElementChild.nextElementSibling.textContent?.trim();
-    let [task, taskIndex] = taskData.getTask(name);
-    taskRowEl.classList.toggle('completed');
-    if (task) {
-      task.completed =  taskRowEl.classList.contains('completed');
-      let column = this.getCompleteDateColumn(taskRowEl);
-      if(taskRowEl.classList.contains('completed')) {
-        task.completeDate = UtilLib.getToday();
-        column.textContent = task.completeDate;
-      } else {
-        task.completeDate = '';
-        column.textContent = '';
-      }
-      taskData.updateTask(task, taskIndex);
-    }
-  }
-
-  getCompleteDateColumn(taskRowEl) {
-    if (taskRowEl.childElementCount === 6) {
-      if (taskRowEl.children[4].classList.contains('completed-date'))
-        return taskRowEl.children[4];
-    }
-  }
-
-  updateTask(taskRowEl, task) {
-    if (task.completed) {
-      taskRowEl.classList.add('completed');
-    } else {
-      taskRowEl.classList.remove('completed');
-    }
-    //task name
-    let firstChildren = taskRowEl.firstElementChild;
-    firstChildren.nextElementSibling.textContent = task.name;
-    //task due date
-    firstChildren.nextElementSibling.nextElementSibling.textContent = task.dueDate;
-    //task priority
-    let priorityColumn = firstChildren.nextElementSibling.nextElementSibling.nextElementSibling;
-    PriorityUI.setSpanClassList(priorityColumn.firstElementChild, task.priority);
-    priorityColumn.nextElementSibling.textContent = task.completeDate;
-  }
-
-  deleteTask(taskRowEl) {
-    let name = taskRowEl.firstElementChild.nextElementSibling.textContent;
-    if (name && name.trim().length > 0) {
-      taskData.removeTask(name.trim());
-      taskRowEl.remove();
-    }
-  }
-
-  searchTask() {
-    const taskTable = document.getElementById("task-table");
-    let searchText = document.getElementById('search-input').value.trim(); // search input value
-    for (let i = 1; i < taskTable?.childElementCount; i++) {
-      let task = taskTable?.children[i].children[1].textContent.trim(); // task name
-      if (task?.toLowerCase().includes(searchText.toLowerCase())) {
-        taskTable.children[i].hidden = false;
-      } else {
-        taskTable.children[i].hidden = true;
-      }
-    }
-  }
-}
-
 class UtilLib {
   static getToday() {
     let today = new Date();
@@ -460,152 +602,8 @@ class UtilLib {
             + '-' + (today.getDate()).toString().padStart(2, '0');
   }
 }
+////////////////////////////////////////////////////////
 
-class AddTaskUI {
-
-  static addTaskItem() {
-    if (AddTaskUI.validateAddTask()) {
-        let name = document.getElementById('task-input')?.value.trim();
-        let [existTask, index] = taskData.getTask(name);
-        if (existTask) {
-          const collapseEl = document.getElementById('task-collapse');
-          const refNode = document.querySelector('.new-task-group');
-          Message.showMessage('Existing task. Please enter a different task', collapseEl, refNode);
-          this.clearUI();
-          return;
-        }
-        const task = {
-          name: name,
-          dueDate: document.getElementById('task-dueDate')?.value,
-          priority: document.getElementById('task-priority')?.value,
-          completed: false,
-          completeDate: ''
-        }
-        taskListUI.addTask(task);
-        taskData?.addTask(task);
-        AddTaskUI.clearUI();
-    }
-  }
-
-  static validateAddTask() {
-    let result = true;
-    let taskInput = document.getElementById('task-input');
-    if (!taskInput?.value.trim()) {
-      taskInput?.focus();
-      document.getElementById('task-input-alert')?.classList.remove('visually-hidden');
-      result = false;
-    } else {
-      document.getElementById('task-input-alert')?.classList.add('visually-hidden');
-    }
-    // due date
-    let taskDueDate = document.getElementById('task-dueDate');
-    if (taskDueDate?.value) {
-        document.getElementById('task-dueDate-alert')?.classList.add('visually-hidden');
-    } else {
-      document.getElementById('task-dueDate-alert')?.classList.remove('visually-hidden');
-      result =  false;
-    }
-    return result;
-  }
-
-  static clearUI() {
-        // initialize the Modal dialog after adding
-        document.getElementById('task-input').value = "";
-        document.getElementById('task-dueDate').value = "";
-        
-        //init priority to normal -> span & select
-        //setPrioritySpanClassList(document.getElementById('priority-color'), 2);
-        document.getElementById('task-priority').value = 2;
-        PriorityUI.setClassList('priority-color', 2);
-  }
-  
-}
-
-class EditTaskUI {
-
-  constructor(taskRowEl) {
-    this.row = taskRowEl;
-    this.name = this.row?.firstElementChild.nextElementSibling.textContent?.trim();
-    [this.task, this.taskIndex] = taskData.getTask(this.name);
-  }
-
-  show() {
-    if (this.task) {
-      const editModal = new bootstrap.Modal('#editTaskModal');
-      document.getElementById('task-edit-input').value = this.task.name;
-      document.getElementById('edit-dueDate').value = this.task.dueDate;
-      document.getElementById('edit-priority').value = this.task.priority;
-      PriorityUI.setClassList('edit-priority-color', this.task.priority); 
-      document.getElementById('edit-compDate').value = this.task.completeDate;
-      editModal.show();
-    }
-  }
-
-  updateTask() {
-    if (this.validateUpdateTask()) {
-      let updateName = document.getElementById('task-edit-input')?.value.trim();
-      // if task name has changed, then check existing task name
-      if (this.name !== updateName) {
-        let [existTask, index] = taskData.getTask(updateName);
-        if (existTask) {
-          const collapseEl = document.getElementById('modal-body');
-          const refNode = document.querySelector('.new-task-group');
-          Message.showMessage('Existing task. Please enter a different task', collapseEl, refNode);
-          document.getElementById('task-edit-input').value = this.name;
-          return;
-        }
-      }
-      this.update();
-      this.clearProperties();
-    }
-  }
-
-  validateUpdateTask() {
-    let result = true;
-    let taskInput = document.getElementById('task-edit-input');
-    if (!taskInput?.value.trim()) {
-      taskInput?.focus();
-      document.getElementById('edit-input-alert')?.classList.remove('visually-hidden');
-      result = false;
-    } else {
-      document.getElementById('edit-input-alert')?.classList.add('visually-hidden');
-    }
-    // due date
-    let taskDueDate = document.getElementById('edit-dueDate');
-    if (taskDueDate?.value) {
-        document.getElementById('edit-dueDate-alert')?.classList.add('visually-hidden');
-    } else {
-      document.getElementById('edit-dueDate-alert')?.classList.remove('visually-hidden');
-      result =  false;
-    }
-    return result;
-  }
-
-  update() {
-    // update memory
-    this.task.name = document.getElementById('task-edit-input').value.trim();
-    this.task.dueDate = document.getElementById('edit-dueDate').value;
-    this.task.priority = document.getElementById('edit-priority').value;
-    this.task.completeDate = document.getElementById('edit-compDate').value;
-    if (this.task.completeDate) {
-      this.task.completed = true;
-    } else {
-      this.task.completed = false;
-    }
-    
-    // save to memory & localStorage
-    taskData.updateTask(this.task, this.taskIndex);
-
-    // update task list table
-    taskListUI.updateTask(this.row, this.task);
-  }
-
-  clearProperties() {
-    this.row = null;
-    this.task = null;
-    this.name = '';
-  }
-}
 
 const taskData = new LocalStore('taskMan');;
 const weeklyData = new LocalStore('weeklyMan');
@@ -684,31 +682,29 @@ function taskListEventDelegation(e) {
   }
 }
 
+function weekTaskEventDelegatation(e) {
+  // Delete
+  if (e.target.parentElement.classList.contains('weekly-del-btn')) {
+    e.stopPropagation();
+    if (e.target.parentElement.parentElement.classList.contains('weekly-task-item')) {
+      weekDayUI.deleteTask(e.target.parentElement.parentElement);
+    }
+    return;
+  }
+  // change Completed
+  if (e.target.parentElement.classList.contains('weekly-task-item')){  
+    //console.log("completed" + e.target.parentElement);
+    e.stopPropagation();
+      weekDayUI.updateCompletedTask(e.target.parentElement);
+  }
+  // clear button
+  if (e.target.classList.contains('btn-day-clear')) {
+    weekDayUI.clearTask(e.target.parentElement.firstElementChild); //"task-list-0"
+  }
+}
+
 function addPriorityEventListeners() {
   document.getElementById('task-priority')?.addEventListener("change", priorityUI.setPriority);
   document.getElementById('edit-priority')?.addEventListener("change", priorityUI.setEditPriority);
   document.getElementById('weeklyTask-priority')?.addEventListener("change", priorityUI.setWeeklyPriority);
 }
-
-function weekTaskEventDelegatation(e) {
-    // Delete
-    if (e.target.parentElement.classList.contains('weekly-del-btn')) {
-      e.stopPropagation();
-      if (e.target.parentElement.parentElement.classList.contains('weekly-task-item')) {
-        weekDayUI.deleteTask(e.target.parentElement.parentElement);
-      }
-      return;
-    }
-    // change Completed
-    if (e.target.parentElement.classList.contains('weekly-task-item')){  
-      //console.log("completed" + e.target.parentElement);
-      e.stopPropagation();
-       weekDayUI.updateCompletedTask(e.target.parentElement);
-    }
-    // clear button
-    if (e.target.classList.contains('btn-day-clear')) {
-      weekDayUI.clearTask(e.target.parentElement.firstElementChild); //"task-list-0"
-    }
-  }
-
-

@@ -1,34 +1,328 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="style.css" />
-    <title>TASK LIST</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="common_style.css">
+  <link rel="stylesheet" href="style.css" />
+  <title>TASK MAN</title>
 </head>
+
 <body>
-    <div class="task-container">
-        <div class="task-header">
-            <h1 class="task-title">TASK LIST</h1>
-            <form class="task-form" id="task-form">
-                <input type="text" class="task-input" id="task-input" placeholder="Enter new task" autocomplete="off">
-            </form>
-            <button id="add-button" >Add Task</button>
+  <nav>
+    <div class="container-fluid d-flex justify-content-center mb-2">
+      <div class="row justify-content-between align-items-center nav-container p-2">
+        <div class="col-2 nav-item"><a class="nav-brand" href="#"><span class="brand-txt"> TaskMan</span></a>
         </div>
-        <div class="task-action">
-            <h3> TASKS :</h3>
-            <input type="text" class="task-filter" placeholder="Filter tasks...">
-            <div class="filter-check-group">
-                <input type="checkbox" id="task-completed-chk" class="task-filter-chk">
-                <label for="task-completed-chk">Completed</label>
-            </div>
-            <div class="task-list"></div>
-            <button id="clear-task-button">Clear Tasks</button>
-            <small>Left click to toggle completed. </small>
+        <div class="col-auto nav-item p-2">
+          <form id="search-form" class="p-2 mb-2 d-flex justify-content-center align-items-center">
+            <button type="submit" class="icon-button" id="search-form-btn">
+              <i class="fa-solid fa-magnifying-glass icon-btn-color"></i>
+            </button>
+            <input type="text" id="search-input" class="search-input" placeholder="Search tasks..."
+              aria-describedby="searchInput">
+            <button type="button" class="icon-button" id="search-btn-close">
+              <i class="fas fa-xmark icon-btn-color"></i>
+            </button>
+          </form>
         </div>
+      </div>
     </div>
-    <script src="script.js"></script>
+  </nav>
+  <!-- Tabs Menu-->
+  <ul class="nav nav-tabs p-0">
+    <li class="nav-item p-0 m-0">
+      <button class="nav-link active" id="home-tab" aria-current="page" data-bs-toggle="tab" data-bs-target="#home-tab-pane">Task</button>
+    </li>
+    <li class="nav-item p-0 m-0">
+      <button class="nav-link" id="weekly-tab" data-bs-toggle="tab" data-bs-target="#weekly-tab-pane">Weekly</button>
+    </li>
+  </ul>
+  <div class="tab-content" id="tab-content">
+    <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel">
+          <div class="tab-content" id="task-page">
+            <div id="task-container" class="task-container p-3">
+              <!-- New Task button on top -->
+              <div class="container p-3">
+                <div class="row d-flex justify-content-center align-items-center">
+                  <div>
+                    <a id="new-task-btn" href="#task-collapse" type="button" data-bs-toggle="collapse"><i class="fa-solid fa-plus"></i>
+                      New Task</a>
+                  </div>
+                </div>
+              </div>
+          
+              <!-- New Task -->
+              <div class="collapse" id="task-collapse" tabindex="-1">
+                <div class="container new-task-body">
+                  <div class="row" id="new-task-group">
+                    <div class="col-auto d-inline-flex">
+                      <label for="task-input" class="col-form-label">Enter new task:
+                        <span id="task-input-alert" class="badge text-bg-danger rounded-circle visually-hidden">!</span>
+                      </label>
+                    </div>
+                    <div class="col-5">
+                      <input type="text" class="form-control" id="task-input" autocomplete="off">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="d-flex justify-content-evenly flex-column">
+                      <div class="d-flex flex-row align-items-center">
+                        <label for="task-dueDate" class="col-form-label">Due Date: </label>
+                        <input type="date" id="task-dueDate" class="dateInput"><span id="task-dueDate-alert"
+                          class="badge text-bg-danger rounded-circle visually-hidden">!</span>
+                      </div>
+                      <div class="d-flex flex-row align-items-center">
+                        <label for="task-priority" class="col-form-label">Priority: <span id="priority-color"
+                            class="priority-color normal"><i class="fa-solid fa-flag"></i></span></label>
+                        <select class="form-select m-2" id="task-priority" aria-label="task-priority">
+                          <option value="1">High</option>
+                          <option value="2" selected>Normal</option>
+                          <option value="3">Low</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col-auto">
+                      <button type="button" id="add-task-btn" class="btn btn-primary">Add Task</button>
+                    </div>
+                  </div>
+                  <hr>
+                </div>
+              </div>
+              <!-- Task List -->
+              <div id="task-table" class="container-fluid text-center">
+                <div class="row bg-dark bg-opacity-50 text-white p-3">
+                  <div class="col-1">
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                  <div class="col text-start">
+                    Task
+                  </div>
+                  <div class="col-sm-2 d-none d-sm-block">
+                    Due <i class="fa-regular fa-calendar-days" style="margin-left: 0.2rem"></i>
+                  </div>
+                  <div class="col-md-1 d-none d-md-block">
+                    Priority
+                  </div>
+                  <div class="col-1 d-md-none">
+                    <i class="fa-solid fa-flag"></i>
+                  </div>
+                  <div class="d-none d-lg-block col-lg-2">
+                    Completed
+                  </div>
+                  <div class="d-none d-lg-block col-lg-1">
+                    Edit
+                  </div>
+                  <div class="col-2 col-md-1 d-lg-none">
+                    <i class="fa-solid fa-pencil"></i>
+                  </div>
+                </div>
+              </div>
+          
+              <!-- Edit Modal -->
+              <div class="modal" id="editTaskModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Edit Task</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div id="new-task-group">
+                        <div>
+                          <input type="text" class="form-control" id="task-edit-input" autocomplete="off"><span
+                            id="edit-input-alert" class="badge text-bg-danger rounded-circle visually-hidden">!</span>
+                        </div>
+                        <div class="d-flex justify-content-evenly flex-column">
+                          <div class="d-flex flex-row align-items-center">
+                            <label for="task-dueDate" class="col-form-label">Due Date: </label>
+                            <input type="date" id="edit-dueDate" class="dateInput"><span id="edit-dueDate-alert"
+                              class="badge text-bg-danger rounded-circle visually-hidden">!</span>
+                          </div>
+                          <div class="d-flex flex-row align-items-center">
+                            <label for="task-priority" class="col-form-label" data-priority-value="2">Priority: <span
+                                id="edit-priority-color" class="priority-color normal"><i
+                                  class="fa-solid fa-flag"></i></span></label>
+                            <select class="form-select m-2" id="edit-priority" aria-label="task-priority">
+                              <option value="1">High</option>
+                              <option value="2" selected>Normal</option>
+                              <option value="3">Low</option>
+                            </select>
+                          </div>
+                          <div class="d-flex flex-row align-items-center">
+                            <label for="edit-compDate" class="col-form-label">Completed Date: </label>
+                            <input type="date" id="edit-compDate" class="dateInput"><span id="edit-compDate-alert"
+                              class="badge text-bg-danger rounded-circle visually-hidden">!</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" id="edit-task-btn" data-bs-dismiss="modal" class="btn btn-primary">Save</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+    </div>
+    <div class="tab-pane fade" id="weekly-tab-pane" role="tabpanel">
+      <div class="tab-content" id="task-page">
+        <div id="weekly-container" class="weekly-container p-3">
+          <div class="container p-3">
+            <div class="row d-flex justify-content-center align-items-center">
+              <div>
+                <a id="new-task-btn" href="#weekly_collapse" type="button" data-bs-toggle="collapse" role="button"><i
+                    class="fa-solid fa-plus"></i> New Task</a>
+              </div>
+            </div>
+          </div>
+      
+          <div class="collapse container mt-2" id="weekly_collapse">
+            <div class="container new-weekly-body">
+              <div class="row mb-3 row-add-week-task">
+                <div class="col-12 col-md-6 d-flex justify-content-center align-items-center">
+                  <label for="weekly-task" class="form-label">Task:</label>
+                  <input class="form-control ms-3" type="text" id="weekly-task-input" placeholder="Enter weekly task...">
+                  <span id="weekly-input-alert" class="badge text-bg-danger rounded-circle visually-hidden">!</span>
+                </div>
+                <div class="col-12 col-md-6 d-flex justify-content-center align-items-center">
+                  <label for="task-priority" class="col-form-label">Priority: <span id="weekly-priority-color"
+                      class="priority-color normal"><i class="fa-solid fa-flag"></i></span></label>
+                  <select class=" form-select m-2 w-auto" id="weeklyTask-priority" aria-label="task-priority">
+                    <option value="1">High</option>
+                    <option value="2" selected>Normal</option>
+                    <option value="3">Low</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row mb-3 align-content-center">
+                <div class="col form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="check-weekly-1" value="1">
+                  <label class="form-check-label d-none d-lg-block" for="check-monday">Monday</label>
+                  <label class="form-check-label d-lg-none" for="check-monday">Mon</label>
+                </div>
+                <div class="col form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="check-weekly-2" value="2">
+                  <label class="form-check-label d-none d-lg-block" for="check-tuesday">Tuesday</label>
+                  <label class="form-check-label d-lg-none" for="check-tuesday">Tue</label>
+                </div>
+                <div class="col form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="check-weekly-3" value="3">
+                  <label class="form-check-label d-none d-lg-block" for="check-wednesday">Wednesday</label>
+                  <label class="form-check-label d-lg-none" for="check-wednesday">Wed</label>
+                </div>
+                <div class="col form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="check-weekly-4" value="4">
+                  <label class="form-check-label d-none d-lg-block" for="check-thursday">Thursday</label>
+                  <label class="form-check-label d-lg-none" for="check-thursday">Thu</label>
+                </div>
+                <div class="col form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="check-weekly-5" value="5">
+                  <label class="form-check-label d-none d-lg-block" for="check-friday">Friday</label>
+                  <label class="form-check-label d-lg-none" for="check-friday">Fri</label>
+                </div>
+                <div class="col form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="check-weekly-6" value="6">
+                  <label class="form-check-label d-none d-lg-block" for="check-saturday">Saturday</label>
+                  <label class="form-check-label d-lg-none" for="check-saturday">Sat</label>
+                </div>
+                <div class="col form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="check-weekly-0" value="0">
+                  <label class="form-check-label d-none d-lg-block" for="check-sunday">Sunday</label>
+                  <label class="form-check-label d-lg-none" for="check-sunday">Sun</label>
+                  <span id="weekly-day-alert" class="badge text-bg-danger rounded-circle visually-hidden">!</span>
+                </div>
+              </div>
+              <div class="mt-3">
+                <button type="button" id="add-weekly-btn" class="btn btn-primary mb-3">Add Task</button>
+              </div>
+              <hr>
+            </div>
+          </div>
+      
+          <div class="container p-0">
+            <div class="row" id="weekDayCard">
+              <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
+                <div class="card" id="card-mon">
+                  <div class="card-header" id="card1">Monday</div>
+                  <div class="card-body p-0">
+                    <div id="task-list-1" class="task-list"></div>
+                    <button class="btn btn-sm btn-secondary ps-3 pe-3 btn-day-clear">Clear</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
+                <div class="card" id="card-tue">
+                  <div class="card-header" id="card2">Tuesday</div>
+                  <div class="card-body p-0">
+                    <div id="task-list-2" class="task-list"></div>
+                    <button class="btn btn-sm btn-secondary ps-3 pe-3 btn-day-clear">Clear</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
+                <div class="card" id="card-wed">
+                  <div class="card-header" id="card3">Wednesday</div>
+                  <div class="card-body p-0">
+                    <div id="task-list-3" class="task-list"></div>
+                    <button class="btn btn-sm btn-secondary ps-3 pe-3 btn-day-clear">Clear</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
+                <div class="card" id="card-thu">
+                  <div class="card-header" id="card4">Thursday</div>
+                  <div class="card-body p-0">
+                    <div id="task-list-4" class="task-list"></div>
+                    <button class="btn btn-sm btn-secondary ps-3 pe-3 btn-day-clear">Clear</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
+                <div class="card" id="card-fri">
+                  <div class="card-header" id="card5">Friday</div>
+                  <div class="card-body p-0">
+                    <div id="task-list-5" class="task-list"></div>
+                    <button class="btn btn-sm btn-secondary ps-3 pe-3 btn-day-clear">Clear</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
+                <div class="card" id="card-sat">
+                  <div class="card-header" id="card6">Saturday</div>
+                  <div class="card-body p-0">
+                    <div id="task-list-6" class="task-list"></div>
+                    <button class="btn btn-sm btn-secondary ps-3 pe-3 btn-day-clear">Clear</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
+                <div class="card" id="card-sun">
+                  <div class="card-header" id="card0">Sunday</div>
+                  <div class="card-body p-0">
+                    <div id="task-list-0" class="task-list">
+                    </div>
+                    <button class="btn btn-sm btn-secondary ps-3 pe-3 btn-day-clear">Clear</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+  <script src="script.js"></script>
 </body>
+
 </html>

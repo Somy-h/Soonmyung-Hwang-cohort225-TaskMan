@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css?family=Muli&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --main-background-color: #fff;
+    --main-button-background-color: #231b14;
+    --hover-background-color: #18A0FB;
+}
+
+section {
+    margin: 0 0 4rem 0;
+}
+
+button {
+    border: 0;
+    cursor: pointer;
+    font-size: 1.2rem;
+    /* margin: 0 2rem; */
+}
+
+button:focus {
+    outline: none; 
+}
+
+button:active {
+    transform: scale(0.96);
+}
+
+.icon-button {
+    background-color: transparent;
+    color: var(--main-background-color);
+    border: 0;
+}
+
+.icon-button:active {
+    transform: scale(0.8);
+}
+
+.icon-button:hover {
+    background-color: transparent;
+    color: var(--hover-background-color);
+}
+
+.myBtn {
+    background-color: var(--main-button-background-color);
+    color: #fff;
+    border-radius: 10px;
+    padding : 0.4rem 3rem;
+}
+
+.myBtn:hover {
+    background-color: var(--hover-background-color);
+    color: #fff;
+}
+
+.myBtn-carousel-arrow {
+    color: #000;
+    font-size: 3rem;
+}
+
+input:active,
+input:focus {
+    outline: none;
+}
+
+a {
+    text-decoration: none; 
+    /* color: #000; */
+}
+
+a:hover {
+    text-decoration: none;
+    color: var(--hover-background-color);
+}

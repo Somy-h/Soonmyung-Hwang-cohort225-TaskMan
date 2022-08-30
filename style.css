@@ -1,195 +1,156 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400&family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Muli&display=swap');
 
 * {
     box-sizing: border-box;
 }
 
 :root {
-    --main-color-theme: rgb(20, 20, 20);
-    --main-button-color: #131313;
+    --nav-background-color: #000;
+    --main-background-color: #fff;
+    --main-button-background-color: #231b14;
     --hover-background-color: #18A0FB;
 }
 
 body {
-    background-color: var(--main-color-theme);
-    font-family: 'Roboto', sans-serif;
-    height: 100vh;
+    background-color: var(--main-background-color);
+    font-family: 'Muli', sans-serif;
     margin: 0 auto;
-    max-width: 900px;
+    min-width: 370px;
+    max-width: 1400px;
 }
 
-button {
-    background-color: var(--main-button-color);
-    border: 0;
-    border-radius: 10px;
+/* Section of Header */
+.nav-container {
+    background-color: var(--nav-background-color);
+    width: 100vw;
+}
+
+nav a {
+    font-size: 0.9rem;
+    color: #dddddd;
+    text-decoration: none;
+    /* position: relative;; */
+}
+
+nav a:hover {
+    text-decoration: none;
     color: #fff;
-    cursor: pointer;
-    font-family: 'Montserrat', sans-serif;
+}
+
+.nav-item {
+    margin: 0 1.5%;
+    padding: 1rem 0 1rem 0;
+    transition: opacity 0.5s ease-in;
+}
+
+.nav-brand {
     font-size: 1.2rem;
-    margin: 1rem 0;
-    padding: 0.5rem 2rem;
 }
 
-button:focus {
-    outline: none;
-}
-
-button:hover {
+.brand-ico {
     color: var(--hover-background-color);
 }
 
-button:active {
-    transform: scale(0.96);
+.brand-txt {
+    font-size: 1.2rem;
 }
 
-h1 {
-    color: var(--main-color-theme);
-    font-size: 4rem;
-    opacity: 0.6;
-    text-align: center;
-}
-
-input:active,
-input:focus {
-    outline: none;
-}
-
-.task-container {
-    background-image: url('task_background.jpg');
-    background-position: center;
-    background-repeat:no-repeat;
-    background-size: cover;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    min-width: 380px;
-    width: 100%;
-}
-
-.task-header,
-.task-action {
-    margin: 1rem 0;
-    width: 80%;
-    display: flex;
-    flex-direction: column;
-}
-
-.task-action {
-    overflow-y: auto;
-}
-
-.task-input,
-.task-filter {
+.search-input {
     background-color: transparent;
     border: 0;
-    border-bottom: 1px solid #000;
-    color: var(--main-color-theme);
-    font-size: 1.5rem;
-    padding: 1rem 1rem;
-    width: 100%; 
-} 
-
-.task-filter {
-    margin-bottom: 1rem;
+    border-bottom: 1px solid #fff;
+    color: #fff;
+    font-size: 1rem;
+    margin: 0 0.5rem 0 1rem;
+    padding: 2px;
+    width: 350px;
 }
 
-.task-input::placeholder,
-.task-filter::placeholder {
-    color: #343333;
-    font-style: italic;
-    font-size: 1.2rem;
-}
-
-.task-input:focus {
-    outline: none;
-}
-
-.filter-check-group {
-    margin-bottom: 1rem;
-}
-
-.task-list {
-    width: 100%;
-}
-
-.task-item {
-    background-color: transparent;
-    border: 1px solid var(--main-color-theme);
+/* New Task Modal */
+.dateInput {
     border-radius: 5px;
-    color: #000;
-    cursor: pointer;
-    font-size: 1.2rem;
-    margin-bottom: 0.1rem;
-    overflow: hidden;
-    padding: 0.5rem 2rem;
-    width: 100%;
-    display: flex;
-    position: relative;
+    border: 1px solid lightgray;
+    padding : 0.4rem;
+    margin: 0.5rem 1rem 0.5rem 1rem;
 }
 
-.task-item:hover {
-    background-color: rgba(179, 131, 226, 0.1);
+.priority-color.high {
+    color: red;
+}
+.priority-color.normal {
+    color: blue;
+}
+.priority-color.low {
+    color: green;
 }
 
-.task-item.completed {
-    color: #296e5a;
+.form-select {
+    width: 30%;
+}
+
+#task-table {
+    font-size: 0.9rem;
+}
+
+.row.completed {
+    color: gray;
+}
+.row.completed .task {
     text-decoration: line-through;
 }
-
- /* X button inside task item */
-.delete-btn {
-    color: #000;
-    font-size: 1.4rem;
-    position: absolute;
-    right: 2rem;
+.row .task-completed-check i:first-child {
+    display: block;
+}
+.row.completed .task-completed-check i:first-child {
+    display: none;
+}
+.row .task-completed-check i:last-child {
+    display: none;
+}
+.row.completed .task-completed-check i:last-child {
+    display: block;
 }
 
-.delete-btn:hover {
-    color: var(--hover-button-color);
+
+/* Weekly Task */
+.alert {
+    background-color: lightsalmon;
+    font-size: 1.2rem;
 }
 
-.delete-btn:active {
-    transform: scale(0.8);
+.weekly-task-item {
+    color: black;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.2rem 1rem;
+    border-bottom: 1px solid lightgrey;
 }
 
-small {
-    color: #762121;
-    text-align: center;
+.weekly-task-item.completed {
+    text-decoration: line-through;
+    color: gray;
 }
 
-@media (max-width: 480px) {
-    button {
-        font-size: 1rem;
-    }
+.weekly-task-item:hover {
+    background-color: rgb(226, 232, 240);
+}
 
-    h1 {
-        font-size: 3rem;
-    }
+.card button {
+    margin: 0.5rem;
+    margin-top: 1rem;
+}
 
-    .task-header,
-    .task-action {
-        width: 90%;
-    }
 
-    .task-input,
-    .task-filter {
-        font-size: 1.2rem;
-    }
 
-    .task-input::placeholder,
-    .task-filter::placeholder {
-        font-size: 1rem;
+@media(max-width: 768px) {
+    .due-date {
+        font-size: 0.8rem;
     }
+}
 
-    .task-item {
-        font-size: 1rem;
-    }
-
-    /* X button inside task item */
-    .delete-btn {
-        color: #000;
-        font-size: 1.2rem;
+@media(max-width: 600px) {
+    .due-date {
+        font-size: 0.7rem;
     }
 }

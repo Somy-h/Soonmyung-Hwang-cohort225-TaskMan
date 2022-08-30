@@ -74,7 +74,7 @@ class LocalStore {
   }
 
   removeArrayTask(name, property, value) {
-    debugger;
+    //debugger;
     let [task, index] = this.getTask(name);
     if (task) {
       let isDeleteWholeTask = this.deleteArrayValue(task, property, value);
@@ -90,7 +90,7 @@ class LocalStore {
   }
 
   updateArray(name, property, value, add = 1) { // 1: add, 0: remove
-    debugger;
+    //debugger;
     let [task, index] = this.getTask(name);
     if (task) {
       (add) ? this.addArrayValue(task, property, value) 
@@ -515,7 +515,7 @@ class AddTaskUI {
         
         //init priority to normal -> span & select
         //setPrioritySpanClassList(document.getElementById('priority-color'), 2);
-        //document.getElementById('task-priority').value = 2;
+        document.getElementById('task-priority').value = 2;
         PriorityUI.setClassList('priority-color', 2);
   }
   
@@ -597,7 +597,6 @@ class EditTaskUI {
     taskData.updateTask(this.task, this.taskIndex);
 
     // update task list table
-    debugger;
     taskListUI.updateTask(this.row, this.task);
   }
 

@@ -225,8 +225,8 @@ class TaskListUI {
 
 class AddTaskUI {
 
-  static addTaskItem() {
-    if (AddTaskUI.validateAddTask()) {
+  addTaskItem() {
+    if (this.validateAddTask()) {
         let name = document.getElementById('task-input')?.value.trim();
         let [existTask, index] = taskData.getTask(name);
         if (existTask) {
@@ -245,11 +245,11 @@ class AddTaskUI {
         }
         taskListUI.addTask(task);
         taskData?.addTask(task);
-        AddTaskUI.clearUI();
+        this.clearUI();
     }
   }
 
-  static validateAddTask() {
+  validateAddTask() {
     let result = true;
     let taskInput = document.getElementById('task-input');
     if (!taskInput?.value.trim()) {
@@ -270,7 +270,7 @@ class AddTaskUI {
     return result;
   }
 
-  static clearUI() {
+  clearUI() {
         // initialize the Modal dialog after adding
         document.getElementById('task-input').value = "";
         document.getElementById('task-dueDate').value = "";
@@ -372,31 +372,31 @@ class EditTaskUI {
 // Second tab page:  Collapsed UI for Adding new weekly task
 class AddWeeklyUI {
   
-  static addWeeklyTask() {
+  addWeeklyTask() {
     // validation of task name and week day
-    if (AddWeeklyUI.validateAddWeeklyTask()) {
+    if (this.validateAddWeeklyTask()) {
       let name = document.getElementById('weekly-task-input')?.value.trim();
       let [existTask, index] = weeklyData.getTask(name);
       if (existTask) {
         const collapseEl = document.getElementById('weekly_collapse');
         const refNode = document.querySelector('.new-weekly-body');
         Message.showMessage('Existing task. Please enter a different task', collapseEl, refNode);
-        AddWeeklyUI.clearUI();
+        this.clearUI();
         return;
       }
       const task = {
           name: name,
           priority: document.getElementById('weeklyTask-priority')?.value,
           completed: [],
-          days: AddWeeklyUI.getWeekDays()
+          days: this.getWeekDays()
       }
       weekDayUI.addWeeklyTask(task);
       weeklyData?.addTask(task);
-      AddWeeklyUI.clearUI();
+      this.clearUI();
     }
   }
 
-  static validateAddWeeklyTask() {
+  validateAddWeeklyTask() {
     let result = true;
     if (!document.getElementById('weekly-task-input')?.value.trim()) {
       // show alert
@@ -407,14 +407,14 @@ class AddWeeklyUI {
       document.getElementById('weekly-input-alert')?.classList.add('visually-hidden');
       document.getElementById('weekly-day-alert')?.classList.add('visually-hidden');
     }
-    if (AddWeeklyUI.getWeekDays().length == 0) {
+    if (this.getWeekDays().length == 0) {
       document.getElementById('weekly-day-alert')?.classList.remove('visually-hidden');
       result = false;
     } 
     return result;
   }
 
-  static getWeekDays() {
+  getWeekDays() {
     let result = [];
     // Monday(check-weekly-0) to Sunday(check-weekly-6)
     for (let i = 0; i < 7; i++ ) {
@@ -425,7 +425,7 @@ class AddWeeklyUI {
     return result;
   }
 
-  static setWeekDays(arr) {
+  setWeekDays(arr) {
     for (let i = 0; i < 7; i++ ) {
         document.getElementById(`check-weekly-${i}`).checked = false;
     }  
@@ -437,13 +437,12 @@ class AddWeeklyUI {
     } 
   }
 
-  static clearUI () {
+  clearUI () {
     document.getElementById('weekly-task-input').value = '';
     document.getElementById('weeklyTask-priority').value = 2;
     PriorityUI.setClassList('weekly-priority-color', 2); // span color
-    AddWeeklyUI.setWeekDays(null);
+    this.setWeekDays(null);
   }
-
 }
 
 class Message {
@@ -609,7 +608,6 @@ const taskData = new LocalStore('taskMan');;
 const weeklyData = new LocalStore('weeklyMan');
 
 const taskListUI = new TaskListUI();
-const priorityUI = new PriorityUI();
 const weekDayUI = new WeekDayUI();
 
 loadTaskHomeTab();
@@ -632,8 +630,10 @@ function addTaskEventListeners() {
 }
 
 function addTaskEventListeners() {
+  const addTaskUI = new AddTaskUI();
+
   // add new task button event
-  document.getElementById('add-task-btn')?.addEventListener("click", AddTaskUI.addTaskItem);
+  document.getElementById('add-task-btn')?.addEventListener("click", addTaskUI.addTaskItem.bind(addTaskUI));
   // Task List event delegation
   document.getElementById('task-table')?.addEventListener("click", taskListEventDelegation);
     
@@ -651,7 +651,8 @@ function addTaskEventListeners() {
   });
 
   // weekly
-  document.getElementById('add-weekly-btn')?.addEventListener("click", AddWeeklyUI.addWeeklyTask);
+  const addWeeklyUI = new AddWeeklyUI();
+  document.getElementById('add-weekly-btn')?.addEventListener("click", addWeeklyUI.addWeeklyTask.bind(addWeeklyUI));
   document.getElementById('weekDayCard')?.addEventListener("click", weekTaskEventDelegatation);
 }
 
@@ -704,7 +705,8 @@ function weekTaskEventDelegatation(e) {
 }
 
 function addPriorityEventListeners() {
-  document.getElementById('task-priority')?.addEventListener("change", priorityUI.setPriority);
-  document.getElementById('edit-priority')?.addEventListener("change", priorityUI.setEditPriority);
-  document.getElementById('weeklyTask-priority')?.addEventListener("change", priorityUI.setWeeklyPriority);
+  const priorityUI = new PriorityUI();
+  document.getElementById('task-priority')?.addEventListener("change", priorityUI.setPriority.bind(priorityUI));
+  document.getElementById('edit-priority')?.addEventListener("change", priorityUI.setEditPriority.bind(priorityUI));
+  document.getElementById('weeklyTask-priority')?.addEventListener("change", priorityUI.setWeeklyPriority.bind(priorityUI));
 }
